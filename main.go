@@ -5,6 +5,10 @@ import (
 	"crypto/sha256"
 )
 
+type BlockChain struct {
+	blocks []*Block
+}
+
 type Block struct {
 	Hash     []byte
 	Data     []byte
