@@ -1,6 +1,9 @@
 package blockchain
 
-import "math/big"
+import (
+	"bytes"
+	"math/big"
+)
 
 // take the data from the block
 // create a counter (nonce) which starts from 0
@@ -26,4 +29,15 @@ func NewProof(b *Block) *ProofOfWork {
 	pow := &ProofOfWork{b, target}
 
 	return pow
+}
+
+func (pow *ProofOfWork) InitData(nonce int) []byte {
+	data := bytes.Join(
+		[][]byte{
+			pow.Block.PrevHash,
+			pow.Block.Data,
+		},
+		[]byte{},
+	)
+	return data
 }
