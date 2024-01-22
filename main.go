@@ -90,4 +90,9 @@ func (cli *CommandLine) run() {
 }
 
 func main() {
+	chain := blockchain.InitBlockChain()
+	defer chain.Database.Close()
+
+	cli := CommandLine{chain}
+	cli.run()
 }
