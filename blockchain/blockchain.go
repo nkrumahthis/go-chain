@@ -46,7 +46,27 @@ func InitBlockChain() *BlockChain {
 }
 
 func (chain *BlockChain) AddBlock(data string) {
-	prevBlock := chain.Blocks[len(chain.Blocks)-1]
-	new := CreateBlock(data, prevBlock.Hash)
-	chain.Blocks = append(chain.Blocks, new)
+	var lastHash []byte
+	
+	err := chain.Database.View(func(txn *badger.Txn) error {
+		item, err := txn.Get([]byte("lh"))
+		Handle(err)
+		lastHash, err = item.ValueCopy(nil)
+		return err
+	})
+
+	Handle(err)
+
+	newBlock := CreateBlock(data, lastHash)
+
+	err = chain.Database.Update(func(txn *badger.Txn) error{
+		err := txn.Set(newBlock.Hash, newBlock.Serialize())
+		Handle(err)
+		err = txn.Set([]byte("lh"), newBlock.Hash)
+		chain.LastHash = newBlock.Hash
+		return err
+	})
+
+	Handle(err)
+
 }
