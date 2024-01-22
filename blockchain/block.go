@@ -1,5 +1,11 @@
 package blockchain
 
+import (
+	"bytes"
+	"encoding/gob"
+	"log"
+)
+
 type Block struct {
 	Hash     []byte
 	Data     []byte
@@ -20,4 +26,17 @@ func CreateBlock(data string, prevHash []byte) *Block {
 
 func Genesis() *Block {
 	return CreateBlock("Genesis", []byte{})
+}
+
+func (b *Block) Serialize() []byte {
+	var res bytes.Buffer
+	encoder := gob.NewEncoder(&res)
+
+	err := encoder.Encode(b)
+
+	if err != nil {
+		log.Panic(err)
+	}
+
+	return res.Bytes()
 }
