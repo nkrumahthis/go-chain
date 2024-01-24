@@ -36,7 +36,7 @@ func (tx *Transaction) SetID() {
 	tx.ID = hash[:]
 }
 
-func Coinbase(to, data string) *Transaction {
+func CoinbaseTx(to, data string) *Transaction {
 	if data == "" {
 		data = fmt.Sprintf("Coins to %s", to)
 	}
