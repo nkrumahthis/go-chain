@@ -45,7 +45,7 @@ func (cli *CommandLine) getBalance(address string){
 		balance += out.Value
 	}
 
-	fmt.Println("Balance of %s: %d\n", address, balance)
+	fmt.Printf("Balance of %s: %d\n", address, balance)
 }
 
 func (cli *CommandLine) send(from, to string, amount int) {
