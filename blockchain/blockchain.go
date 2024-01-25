@@ -1,6 +1,7 @@
 package blockchain
 
 import (
+	"encoding/hex"
 	"fmt"
 	"os"
 	"runtime"
@@ -133,4 +134,51 @@ func (iter *BlockChainIterator) Next() *Block {
 	iter.CurrentHash = block.PrevHash
 
 	return block
+}
+
+func (chain *BlockChain) FindUnspentTransactions(address string) []*Transaction {
+	var unspentTxs []*Transaction
+
+	spentTXOs := make(map[string][]int)
+
+	iter := chain.Iterator()
+
+	for {
+		block := iter.Next()
+
+		for _, tx := range block.Transactions {
+			txID := hex.EncodeToString(tx.ID)
+
+		Outputs:
+			for outIdx, out := range tx.Outputs { // iterate through outputs of this transaction
+				if spentTXOs[txID] != nil {
+					for _, spentOut := range spentTXOs[txID] { // iterate 
+						if spentOut == outIdx {
+							continue Outputs
+						}
+					}
+				}
+				// can this output be unlocked by this address?
+				if out.CanBeUnlocked(address) {
+					unspentTxs = append(unspentTxs, tx)
+				}
+			}
+
+			if tx.IsCoinbase() == false {
+				for _, in := range tx.Inputs {
+					if in.CanUnlock(address) {
+						inTxID := hex.EncodeToString(in.ID)
+						spentTXOs[inTxID] = append(spentTXOs[inTxID], in.Out)
+					}
+				}
+			}
+		}
+
+		// if block is genesis, break out
+		if len(block.PrevHash) == 0 {
+			break
+		}
+	}
+
+	return unspentTxs
 }

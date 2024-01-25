@@ -21,7 +21,7 @@ type TxOutput struct {
 type Transaction struct {
 	ID []byte
 	Inputs []TxInput
-	Output []TxOutput
+	Outputs []TxOutput
 }
 
 func (tx *Transaction) SetID() {
