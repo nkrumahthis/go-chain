@@ -4,7 +4,9 @@ import (
 	"bytes"
 	"crypto/sha256"
 	"encoding/gob"
+	"encoding/hex"
 	"fmt"
+	"log"
 )
 
 type TxInput struct {
@@ -60,4 +62,36 @@ func (in *TxInput) CanUnlock(data string) bool {
 
 func (out *TxOutput) CanBeUnlocked(data string) bool {
 	return out.PubKey == data
+}
+
+func NewTransaction(from, to string, amount int, chain *BlockChain) *Transaction {
+	var inputs []TxInput
+	var outputs []TxOutput
+
+	acc, validOutputs := chain.FindSpendableOutputs(from, amount)
+	if acc < amount {
+		log.Panic("Error: not enough funds")
+	}
+
+	for txid, outs := range validOutputs {
+		txID, err := hex.DecodeString(txid)
+		Handle(err)
+
+		for _, out := range outs {
+			input := TxInput{txID, out, from}
+			inputs = append(inputs, input)
+		}
+	}
+
+	// create first output: money sent
+	outputs = append(outputs, TxOutput{amount, to})
+	// create second output: money left if any
+	if amount < acc {
+		outputs = append(outputs, TxOutput{acc - amount, from})
+	}
+
+	tx := Transaction{nil, inputs, outputs}
+	tx.SetID()
+
+	return &tx
 }
