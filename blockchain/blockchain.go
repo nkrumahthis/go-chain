@@ -183,6 +183,7 @@ func (chain *BlockChain) FindUnspentTransactions(address string) []*Transaction 
 	return unspentTxs
 }
 
+// helps us find balance of an account
 func (chain *BlockChain) FindUTXO(address string) []TxOutput {
 	var UTXOs []TxOutput
 	unspentTransactions := chain.FindUnspentTransactions(address)
@@ -196,4 +197,27 @@ func (chain *BlockChain) FindUTXO(address string) []TxOutput {
 	}
 
 	return UTXOs
+}
+
+func (chain *BlockChain) FindSpendableOutputs(address string, amount int) (int, map[string][]int) {
+	unspentOuts := make(map[string][]int)
+	unspentTxs := chain.FindUnspentTransactions(address)
+	accumulated := 0
+
+	Work:
+	for _, tx := range unspentTxs {
+		txID := hex.EncodeToString(tx.ID)
+		for outIdx, out := range tx.Outputs {
+			if out.CanBeUnlocked(address) && accumulated < amount {
+				accumulated += out.Value
+				unspentOuts[txID] = append(unspentOuts[txID], outIdx)
+
+				if accumulated >= amount {
+					break Work
+				}
+			}
+		}
+	}
+
+	return accumulated, unspentOuts
 }
