@@ -16,7 +16,8 @@ type CommandLine struct {}
 func (cli *CommandLine) printUsage() {
 	fmt.Println("Usage:")
 	fmt.Println(" balance -address ADDRESS - get the balance for an account")
-	fmt.Println(" blockchain -address ADDRESS creates a blockchain and sends genesis reward to address")
+	fmt.Println(" create -address ADDRESS creates a blockchain and sends genesis reward to address")
+	fmt.Println(" destroy deletes the blockchain")
 	fmt.Println(" print - Prints the blocks in the chain")
 	fmt.Println(" send -from FROM -to TO -amount AMOUNT - Send amount of coins")
 }
@@ -81,16 +82,24 @@ func (cli *CommandLine) printChain() {
 	}
 }
 
+func (cli *CommandLine) destroyChain() {
+	fmt.Println("destroying chain")
+	blockchain.DestroyBlockChain()
+	fmt.Println("chain is destroyed")
+}
+
 func (cli *CommandLine) run() {
 	cli.validateArgs()
 
 	balanceCmd := flag.NewFlagSet("balance", flag.ExitOnError)
-	blockchainCmd := flag.NewFlagSet("blockchain", flag.ExitOnError)
+	createCmd := flag.NewFlagSet("create", flag.ExitOnError)
+	destroyCmd := flag.NewFlagSet("destroy", flag.ExitOnError)
+
 	sendCmd := flag.NewFlagSet("send", flag.ExitOnError)
 	printChainCmd := flag.NewFlagSet("print", flag.ExitOnError)
 
 	balanceAddress := balanceCmd.String("address", "", "The address to get the balance for")
-	createAddress := blockchainCmd.String("address", "", "The address to send the genesis block reward to")
+	createAddress := createCmd.String("address", "", "The address to send the genesis block reward to")
 	sendFrom := sendCmd.String("from", "", "Source wallet address")
 	sendTo := sendCmd.String("to", "", "Destination wallet address")
 	sendAmount := sendCmd.Int("amount", 0, "Amount to send")
@@ -101,8 +110,13 @@ func (cli *CommandLine) run() {
 		if err != nil {
 			log.Panic(err)
 		}
-	case "blockchain":
-		err := blockchainCmd.Parse(os.Args[2:])
+	case "create":
+		err := createCmd.Parse(os.Args[2:])
+		if err != nil {
+			log.Panic(err)
+		}
+	case "destroy":
+		err := destroyCmd.Parse(os.Args[2:])
 		if err != nil {
 			log.Panic(err)
 		}
@@ -121,9 +135,10 @@ func (cli *CommandLine) run() {
 		runtime.Goexit()
 	}
 
-	if blockchainCmd.Parsed() {
+	if createCmd.Parsed() {
 		if *createAddress =="" {
-			cli.printChain()
+			balanceCmd.Usage()
+			runtime.Goexit()
 		}
 		cli.createBlockChain(*createAddress)
 	}
@@ -134,6 +149,10 @@ func (cli *CommandLine) run() {
 			runtime.Goexit()
 		}
 		cli.getBalance(*balanceAddress)
+	}
+
+	if destroyCmd.Parsed() {
+		cli.destroyChain()
 	}
 
 	if sendCmd.Parsed() {

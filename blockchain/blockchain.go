@@ -56,6 +56,15 @@ func ContinueBlockChain(add string) *BlockChain {
 	return &chain
 }
 
+func DestroyBlockChain() {
+	if !DBExists() {
+		fmt.Println("Blockchain does not exist")
+		runtime.Goexit()
+	}
+
+	os.RemoveAll(dbPath)
+}
+
 func InitBlockChain(address string) *BlockChain {
 	var lastHash []byte
 
@@ -78,7 +87,6 @@ func InitBlockChain(address string) *BlockChain {
 		lastHash = genesis.Hash
 
 		return err
-
 	})
 
 	Handle(err)
@@ -204,7 +212,7 @@ func (chain *BlockChain) FindSpendableOutputs(address string, amount int) (int, 
 	unspentTxs := chain.FindUnspentTransactions(address)
 	accumulated := 0
 
-	Work:
+Work:
 	for _, tx := range unspentTxs {
 		txID := hex.EncodeToString(tx.ID)
 		for outIdx, out := range tx.Outputs {
