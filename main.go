@@ -6,8 +6,6 @@ import (
 	"github.com/nkrumahthis/go-chain/cli"
 )
 
-
-
 func main() {
 	defer os.Exit(0)
 	cmd := cli.CommandLine{}
