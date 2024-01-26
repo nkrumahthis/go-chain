@@ -30,13 +30,13 @@ func (cli *CommandLine) validateArgs() {
 
 func (cli *CommandLine) createBlockChain(address string) {
 	chain := blockchain.InitBlockChain(address)
-	defer chain.Database.Close()
+	defer chain.Close()
 	fmt.Println()
 }
 
 func (cli *CommandLine) getBalance(address string){
 	chain := blockchain.ContinueBlockChain(address)
-	defer chain.Database.Close()
+	defer chain.Close()
 
 	balance := 0
 	UTXOs := chain.FindUTXO(address)
@@ -50,7 +50,7 @@ func (cli *CommandLine) getBalance(address string){
 
 func (cli *CommandLine) send(from, to string, amount int) {
 	chain := blockchain.ContinueBlockChain(from)
-	defer chain.Database.Close()
+	defer chain.Close()
 
 	tx := blockchain.NewTransaction(from, to, amount, chain)
 	chain.AddBlock([]*blockchain.Transaction{tx})
@@ -59,7 +59,7 @@ func (cli *CommandLine) send(from, to string, amount int) {
 
 func (cli *CommandLine) printChain() {
 	chain := blockchain.ContinueBlockChain("")
-	defer chain.Database.Close()
+	defer chain.Close()
 	iter := chain.Iterator()
 
 	for {

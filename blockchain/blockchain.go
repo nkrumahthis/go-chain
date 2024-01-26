@@ -152,7 +152,7 @@ func (chain *BlockChain) FindUnspentTransactions(address string) []*Transaction 
 		Outputs:
 			for outIdx, out := range tx.Outputs { // iterate through outputs of this transaction
 				if spentTXOs[txID] != nil {
-					for _, spentOut := range spentTXOs[txID] { // iterate 
+					for _, spentOut := range spentTXOs[txID] { // iterate
 						if spentOut == outIdx {
 							continue Outputs
 						}
@@ -220,4 +220,8 @@ func (chain *BlockChain) FindSpendableOutputs(address string, amount int) (int, 
 	}
 
 	return accumulated, unspentOuts
+}
+
+func (chain *BlockChain) Close() {
+	chain.Database.Close()
 }
