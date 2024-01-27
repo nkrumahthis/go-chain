@@ -4,7 +4,15 @@ import (
 	"crypto/ecdsa"
 	"crypto/elliptic"
 	"crypto/rand"
+	"crypto/sha256"
 	"log"
+
+	"golang.org/x/crypto/ripemd160"
+)
+
+const (
+	checksumLength = 4
+	version        = byte(0x00)
 )
 
 type Wallet struct {
@@ -29,4 +37,17 @@ func MakeWallet() *Wallet {
 	wallet := Wallet{private, public}
 
 	return &wallet
+}
+
+func PublicKeyHash(pubkey []byte) []byte {
+	pubHash := sha256.Sum256(pubkey)
+
+	hasher := ripemd160.New()
+	_, err := hasher.write(pubHash[:])
+	if err != nil {
+		log.Panic(err)
+	}
+
+	publicRipeMD := hasher.Sum(nil)
+	return publicRipeMD
 }
