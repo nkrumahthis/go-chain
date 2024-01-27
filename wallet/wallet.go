@@ -43,11 +43,18 @@ func PublicKeyHash(pubkey []byte) []byte {
 	pubHash := sha256.Sum256(pubkey)
 
 	hasher := ripemd160.New()
-	_, err := hasher.write(pubHash[:])
+	_, err := hasher.Write(pubHash[:])
 	if err != nil {
 		log.Panic(err)
 	}
 
 	publicRipeMD := hasher.Sum(nil)
 	return publicRipeMD
+}
+
+func Checksum(payload []byte) []byte {
+	firstHash := sha256.Sum256(payload)
+	secondHash := sha256.Sum256(firstHash[:])
+
+	return secondHash[:checksumLength]
 }
