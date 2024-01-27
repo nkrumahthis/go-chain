@@ -28,7 +28,7 @@ func (w Wallet) Address() []byte {
 	checksum := Checksum(versionedHash)
 
 	fullHash := append(versionedHash, checksum...)
-	address := Base58Decode(fullHash)
+	address := Base58Encode(fullHash)
 
 	fmt.Printf("pub key: %x\n", w.PublicKey)
 	fmt.Printf("pub hash: %x\n", pubHash)
