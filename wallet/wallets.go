@@ -21,6 +21,15 @@ func CreateWallets() (*Wallets, error) {
 	return &wallets, err
 }
 
+func (ws *Wallets) AddWallet() string {
+	wallet := MakeWallet()
+	address := string(wallet.Address()[:])
+
+	ws.Wallets[address] = wallet
+
+	return address
+}
+
 func (ws *Wallets) GetAllAddress() []string {
 	var addresses []string
 
