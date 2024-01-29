@@ -21,6 +21,16 @@ func CreateWallets() (*Wallets, error) {
 	return &wallets, err
 }
 
+func (ws *Wallets) GetAllAddress() []string {
+	var addresses []string
+
+	for address := range ws.Wallets {
+		addresses = append(addresses, address)
+	}
+
+	return addresses
+}
+
 func (ws Wallets) GetWallet(address string) Wallet {
 	return *ws.Wallets[address]
 }
