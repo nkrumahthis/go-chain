@@ -14,6 +14,13 @@ type Wallets struct {
 	Wallets map[string]*Wallet
 }
 
+func CreateWallets() (*Wallets, error) {
+	wallets := Wallets{}
+	wallets.Wallets = make(map[string]*Wallet)
+	err := wallets.LoadFile()
+	return &wallets, err
+}
+
 func (ws Wallets) SaveFile() {
 	var content bytes.Buffer
 
