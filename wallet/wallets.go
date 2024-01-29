@@ -21,6 +21,10 @@ func CreateWallets() (*Wallets, error) {
 	return &wallets, err
 }
 
+func (ws Wallets) GetWallet(address string) Wallet {
+	return *ws.Wallets[address]
+}
+
 func (ws Wallets) SaveFile() {
 	var content bytes.Buffer
 
