@@ -9,9 +9,10 @@ import (
 	"strconv"
 
 	"github.com/nkrumahthis/go-chain/blockchain"
+	"github.com/nkrumahthis/go-chain/wallet"
 )
 
-type CommandLine struct {}
+type CommandLine struct{}
 
 func (cli *CommandLine) printUsage() {
 	fmt.Println("Usage:")
@@ -20,6 +21,8 @@ func (cli *CommandLine) printUsage() {
 	fmt.Println(" destroy deletes the blockchain")
 	fmt.Println(" print - Prints the blocks in the chain")
 	fmt.Println(" send -from FROM -to TO -amount AMOUNT - Send amount of coins")
+	fmt.Println(" createWallet - Creates a new wallet")
+	fmt.Println(" listAddresses - Lists the adresses in our wallet file")
 }
 
 func (cli *CommandLine) validateArgs() {
@@ -35,7 +38,7 @@ func (cli *CommandLine) createBlockChain(address string) {
 	fmt.Println()
 }
 
-func (cli *CommandLine) getBalance(address string){
+func (cli *CommandLine) getBalance(address string) {
 	chain := blockchain.ContinueBlockChain(address)
 	defer chain.Close()
 
@@ -82,6 +85,19 @@ func (cli *CommandLine) printChain() {
 	}
 }
 
+func (cli *CommandLine) listAddresses() {
+	wallets, err := wallet.CreateWallets()
+	if err != nil {
+		log.Panic(err)
+	}
+
+	addresses := wallets.GetAllAddress()
+
+	for _, address := range addresses {
+		fmt.Println(address)
+	}
+}
+
 func (cli *CommandLine) destroyChain() {
 	fmt.Println("destroying chain")
 	blockchain.DestroyBlockChain()
@@ -97,6 +113,7 @@ func (cli *CommandLine) Run() {
 
 	sendCmd := flag.NewFlagSet("send", flag.ExitOnError)
 	printChainCmd := flag.NewFlagSet("print", flag.ExitOnError)
+	listAddressesCmd := flag.NewFlagSet("listAddresses", flag.ExitOnError)
 
 	balanceAddress := balanceCmd.String("address", "", "The address to get the balance for")
 	createAddress := createCmd.String("address", "", "The address to send the genesis block reward to")
@@ -130,13 +147,18 @@ func (cli *CommandLine) Run() {
 		if err != nil {
 			log.Panic(err)
 		}
+	case "listAddresses":
+		err := listAddressesCmd.Parse(os.Args[2:])
+		if err != nil {
+			log.Panic(err)
+		}
 	default:
 		cli.printUsage()
 		runtime.Goexit()
 	}
 
 	if createCmd.Parsed() {
-		if *createAddress =="" {
+		if *createAddress == "" {
 			balanceCmd.Usage()
 			runtime.Goexit()
 		}
@@ -166,4 +188,9 @@ func (cli *CommandLine) Run() {
 	if printChainCmd.Parsed() {
 		cli.printChain()
 	}
+
+	if listAddressesCmd.Parsed() {
+		cli.listAddresses()
+	}
 }
+
