@@ -62,10 +62,7 @@ func (cli *CommandLine) send(from, to string, amount int) {
 }
 
 func (cli *CommandLine) createWallet(){
-	wallets, err := wallet.CreateWallets()
-	if err != nil{
-		log.Panic(err)
-	}
+	wallets, _ := wallet.CreateWallets()
 	address := wallets.AddWallet()
 	wallets.SaveFile()
 
@@ -102,7 +99,7 @@ func (cli *CommandLine) listAddresses() {
 		log.Panic(err)
 	}
 
-	addresses := wallets.GetAllAddress()
+	addresses := wallets.GetAllAddresses()
 
 	for _, address := range addresses {
 		fmt.Println(address)
