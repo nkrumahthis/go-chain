@@ -45,7 +45,7 @@ func NewKeyPair() (ecdsa.PrivateKey, []byte) {
 		log.Panic(err)
 	}
 
-	pub := append(private.PublicKey.X.Bytes(), private.PublicKey.Y.Bytes()...)
+	pub := append(private.X.Bytes(), private.Y.Bytes()...)
 	return *private, pub
 }
 
